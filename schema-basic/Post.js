@@ -22,6 +22,10 @@ const Post = new GraphQLObjectType({
             // SQL column assumed to be "id"
             type: GraphQLInt
         },
+        title: {
+            description: 'The title of the post',
+            type: GraphQLString
+        },
         body: {
             description: 'The content of the post',
             // assumed to be "body"

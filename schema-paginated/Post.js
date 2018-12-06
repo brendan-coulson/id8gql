@@ -16,7 +16,7 @@ import { CommentConnection, SimpleComment } from './Comment'
 import { nodeInterface } from './Node'
 
 
-export const Post = new GraphQLObjectType({
+const Post = new GraphQLObjectType({
   description: 'A post from a user',
   name: 'Post',
   sqlTable: 'posts',
@@ -66,7 +66,13 @@ export const Post = new GraphQLObjectType({
   })
 })
 
+Post._typeConfig = {
+    sqlTable: 'posts',
+    uniqueKey: 'id'
+}
+
 // create the connection type from the post
 const { connectionType: PostConnection } = connectionDefinitions({ nodeType: Post })
 export { PostConnection }
+export { Post }
 

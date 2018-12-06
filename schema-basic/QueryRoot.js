@@ -1,9 +1,9 @@
 import {
-  GraphQLObjectType,
-  GraphQLList,
-  GraphQLNonNull,
-  GraphQLString,
-  GraphQLInt
+    GraphQLObjectType,
+    GraphQLList,
+    GraphQLNonNull,
+    GraphQLString,
+    GraphQLInt
 } from 'graphql'
 
 
@@ -14,35 +14,41 @@ import User from './User'
 import Post from "./Post";
 
 export default new GraphQLObjectType({
-  description: 'global query object',
-  name: 'Query',
-  fields: () => ({
-    version: {
-      type: GraphQLString,
-      resolve: () => joinMonster.version
-    },
-    users: {
-      type: new GraphQLList(User),
-      resolve: (parent, args, context, resolveInfo) => {
-        // joinMonster with handle batching all the data fetching for the users and it's children. Determines everything it needs to from the "resolveInfo", which includes the parsed GraphQL query AST and your schema definition
-        return joinMonster(resolveInfo, context, sql => dbCall(sql, knex, context))
-      }
-    },
-    user: {
-      type: User,
-      args: {
-        id: {
-          description: 'The users ID number',
-          type: new GraphQLNonNull(GraphQLInt)
+    description: 'global query object',
+    name: 'Query',
+    fields: () => ({
+        version: {
+            type: GraphQLString,
+            resolve: () => joinMonster.version
+        },
+        users: {
+            type: new GraphQLList(User),
+            resolve: (parent, args, context, resolveInfo) => {
+                // joinMonster with handle batching all the data fetching for the users and it's children. Determines everything it needs to from the "resolveInfo", which includes the parsed GraphQL query AST and your schema definition
+                return joinMonster(resolveInfo, context, sql => dbCall(sql, knex, context))
+            }
+        },
+        user: {
+            type: User,
+            args: {
+                id: {
+                    description: 'The users ID number',
+                    type: new GraphQLNonNull(GraphQLInt)
+                }
+            },
+            // this function generates the WHERE condition
+            where: (usersTable, args, context) => { // eslint-disable-line no-unused-vars
+                return `${usersTable}.id = ${args.id}`
+            },
+            resolve: (parent, args, context, resolveInfo) => {
+                return joinMonster(resolveInfo, context, sql => dbCall(sql, knex, context))
+            }
+        },
+        posts : {
+            type: new GraphQLList(Post),
+            resolve: (parent, args, context, resolveInfo) => {
+                return joinMonster(resolveInfo, context, sql => dbCall(sql,knex,context))
+            }
         }
-      },
-      // this function generates the WHERE condition
-      where: (usersTable, args, context) => { // eslint-disable-line no-unused-vars
-        return `${usersTable}.id = ${args.id}`
-      },
-      resolve: (parent, args, context, resolveInfo) => {
-        return joinMonster(resolveInfo, context, sql => dbCall(sql, knex, context))
-      }
-    }
-  })
+    })
 })
